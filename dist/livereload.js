@@ -3083,6 +3083,8 @@ require("core-js/modules/es6.object.to-string.js");
 require("core-js/modules/es6.array.iterator.js");
 require("core-js/modules/web.dom.iterable.js");
 require("core-js/modules/es6.regexp.match.js");
+require("core-js/modules/es6.string.includes.js");
+require("core-js/modules/es7.array.includes.js");
 require("core-js/modules/es6.array.filter.js");
 require("core-js/modules/es6.array.map.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -3104,22 +3106,22 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
  * @return {object}
  */
 function splitUrl(url) {
-  var hash = '';
-  var params = '';
-  var index = url.indexOf('#');
+  var hash = "";
+  var params = "";
+  var index = url.indexOf("#");
   if (index >= 0) {
     hash = url.slice(index);
     url = url.slice(0, index);
   }
 
   // http://your.domain.com/path/to/combo/??file1.css,file2,css
-  var comboSign = url.indexOf('??');
+  var comboSign = url.indexOf("??");
   if (comboSign >= 0) {
-    if (comboSign + 1 !== url.lastIndexOf('?')) {
-      index = url.lastIndexOf('?');
+    if (comboSign + 1 !== url.lastIndexOf("?")) {
+      index = url.lastIndexOf("?");
     }
   } else {
-    index = url.indexOf('?');
+    index = url.indexOf("?");
   }
   if (index >= 0) {
     params = url.slice(index);
@@ -3131,7 +3133,6 @@ function splitUrl(url) {
     hash: hash
   };
 }
-;
 
 /**
  * Get path from URL (remove protocol, host, port)
@@ -3140,18 +3141,18 @@ function splitUrl(url) {
  */
 function pathFromUrl(url) {
   if (!url) {
-    return '';
+    return "";
   }
   var path;
   var _splitUrl = splitUrl(url);
   url = _splitUrl.url;
-  if (url.indexOf('file://') === 0) {
+  if (url.indexOf("file://") === 0) {
     // eslint-disable-next-line prefer-regex-literals
-    path = url.replace(new RegExp('^file://(localhost)?'), '');
+    path = url.replace(new RegExp("^file://(localhost)?"), "");
   } else {
     //                        http  :   // hostname  :8080  /
     // eslint-disable-next-line prefer-regex-literals
-    path = url.replace(new RegExp('^([^:]+:)?//([^:/]+)(:\\d*)?/'), '/');
+    path = url.replace(new RegExp("^([^:]+:)?//([^:/]+)(:\\d*)?/"), "/");
   }
 
   // decodeURI has special handling of stuff like semicolons, so use decodeURIComponent
@@ -3166,8 +3167,8 @@ function pathFromUrl(url) {
  */
 function numberOfMatchingSegments(left, right) {
   // get rid of leading slashes and normalize to lower case
-  left = left.replace(/^\/+/, '').toLowerCase();
-  right = right.replace(/^\/+/, '').toLowerCase();
+  left = left.replace(/^\/+/, "").toLowerCase();
+  right = right.replace(/^\/+/, "").toLowerCase();
   if (left === right) {
     return 10000;
   }
@@ -3230,11 +3231,11 @@ function pathsMatch(left, right) {
   return numberOfMatchingSegments(left, right) > 0;
 }
 var IMAGE_STYLES = [{
-  selector: 'background',
-  styleNames: ['backgroundImage']
+  selector: "background",
+  styleNames: ["backgroundImage"]
 }, {
-  selector: 'border',
-  styleNames: ['borderImage', 'webkitBorderImage', 'MozBorderImage']
+  selector: "border",
+  styleNames: ["borderImage", "webkitBorderImage", "MozBorderImage"]
 }];
 var DEFAULT_OPTIONS = {
   stylesheetReloadTimeout: 15000
@@ -3279,6 +3280,13 @@ var Reloader = /*#__PURE__*/function () {
           return;
         }
       }
+
+      // less for ui5 livecompile
+      if (options.liveCSS && path.includes(".less")) {
+        if (this.reloadStylesheet(path.replace(".less", ".css"))) {
+          return;
+        }
+      }
       if (options.liveImg && path.match(IMAGES_REGEX)) {
         this.reloadImages(path);
         return;
@@ -3294,30 +3302,30 @@ var Reloader = /*#__PURE__*/function () {
     value: function runPluginsByOrder(path, options) {
       var _this = this;
       options.pluginOrder.some(function (pluginId) {
-        if (pluginId === 'css') {
+        if (pluginId === "css") {
           if (options.liveCSS && path.match(/\.css(?:\.map)?$/i)) {
             if (_this.reloadStylesheet(path)) {
               return true;
             }
           }
         }
-        if (pluginId === 'img') {
+        if (pluginId === "img") {
           if (options.liveImg && path.match(IMAGES_REGEX)) {
             _this.reloadImages(path);
             return true;
           }
         }
-        if (pluginId === 'extension') {
+        if (pluginId === "extension") {
           if (options.isChromeExtension) {
             _this.reloadChromeExtension();
             return true;
           }
         }
-        if (pluginId === 'others') {
+        if (pluginId === "others") {
           _this.reloadPage();
           return true;
         }
-        if (pluginId === 'external') {
+        if (pluginId === "external") {
           return _this.plugins.some(function (plugin) {
             return plugin.reload && plugin.reload(path, options);
           });
@@ -3406,9 +3414,9 @@ var Reloader = /*#__PURE__*/function () {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           var styleName = _step2.value;
           var value = style[styleName];
-          if (typeof value === 'string') {
+          if (typeof value === "string") {
             // eslint-disable-next-line prefer-regex-literals
-            var newValue = value.replace(new RegExp('\\burl\\s*\\(([^)]*)\\)'), function (match, src) {
+            var newValue = value.replace(new RegExp("\\burl\\s*\\(([^)]*)\\)"), function (match, src) {
               if (pathsMatch(path, pathFromUrl(src))) {
                 return "url(".concat(_this3.generateCacheBustUrl(src, expando), ")");
               }
@@ -3436,7 +3444,7 @@ var Reloader = /*#__PURE__*/function () {
       var link;
       var links = function () {
         var result = [];
-        for (var _i7 = 0, _Array$from5 = Array.from(_this4.document.getElementsByTagName('link')); _i7 < _Array$from5.length; _i7++) {
+        for (var _i7 = 0, _Array$from5 = Array.from(_this4.document.getElementsByTagName("link")); _i7 < _Array$from5.length; _i7++) {
           link = _Array$from5[_i7];
           if (link.rel.match(/^stylesheet$/i) && !link.__LiveReload_pendingRemoval) {
             result.push(link);
@@ -3447,7 +3455,7 @@ var Reloader = /*#__PURE__*/function () {
 
       // find all imported stylesheets
       var imported = [];
-      for (var _i8 = 0, _Array$from6 = Array.from(this.document.getElementsByTagName('style')); _i8 < _Array$from6.length; _i8++) {
+      for (var _i8 = 0, _Array$from6 = Array.from(this.document.getElementsByTagName("style")); _i8 < _Array$from6.length; _i8++) {
         style = _Array$from6[_i8];
         if (style.sheet) {
           this.collectImportedStylesheets(style, style.sheet, imported);
@@ -3460,7 +3468,7 @@ var Reloader = /*#__PURE__*/function () {
 
       // handle prefixfree
       if (this.window.StyleFix && this.document.querySelectorAll) {
-        for (var _i10 = 0, _Array$from8 = Array.from(this.document.querySelectorAll('style[data-href]')); _i10 < _Array$from8.length; _i10++) {
+        for (var _i10 = 0, _Array$from8 = Array.from(this.document.querySelectorAll("style[data-href]")); _i10 < _Array$from8.length; _i10++) {
           style = _Array$from8[_i10];
           links.push(style);
         }
@@ -3540,7 +3548,7 @@ var Reloader = /*#__PURE__*/function () {
       // http://www.zachleat.com/web/load-css-dynamically/
       // http://pieisgood.org/test/script-link-events/
       clone.onload = function () {
-        _this5.console.log('LiveReload: the new stylesheet has finished loading');
+        _this5.console.log("LiveReload: the new stylesheet has finished loading");
         _this5.knownToSupportCssOnLoad = true;
         return executeCallback();
       };
@@ -3549,7 +3557,7 @@ var Reloader = /*#__PURE__*/function () {
         var _poll;
         (_poll = function poll() {
           if (clone.sheet) {
-            _this5.console.log('LiveReload is polling until the new CSS finishes loading...');
+            _this5.console.log("LiveReload is polling until the new CSS finishes loading...");
             return executeCallback();
           }
           return _this5.Timer.start(50, _poll);
@@ -3563,7 +3571,7 @@ var Reloader = /*#__PURE__*/function () {
     key: "linkHref",
     value: function linkHref(link) {
       // prefixfree uses data-href when it turns LINK into STYLE
-      return link.href || link.getAttribute && link.getAttribute('data-href');
+      return link.href || link.getAttribute && link.getAttribute("data-href");
     }
   }, {
     key: "reattachStylesheetLink",
@@ -3575,10 +3583,10 @@ var Reloader = /*#__PURE__*/function () {
         return;
       }
       link.__LiveReload_pendingRemoval = true;
-      if (link.tagName === 'STYLE') {
+      if (link.tagName === "STYLE") {
         // prefixfree
-        clone = this.document.createElement('link');
-        clone.rel = 'stylesheet';
+        clone = this.document.createElement("link");
+        clone.rel = "stylesheet";
         clone.media = link.media;
         clone.disabled = link.disabled;
       } else {
@@ -3619,7 +3627,7 @@ var Reloader = /*#__PURE__*/function () {
         link = _ref.link;
       var parent = rule.parentStyleSheet;
       var href = this.generateCacheBustUrl(rule.href);
-      var media = rule.media.length ? [].join.call(rule.media, ', ') : '';
+      var media = rule.media.length ? [].join.call(rule.media, ", ") : "";
       var newRule = "@import url(\"".concat(href, "\") ").concat(media, ";");
 
       // used to detect if reattachImportedRule has been called again on the same rule
@@ -3628,8 +3636,8 @@ var Reloader = /*#__PURE__*/function () {
       // WORKAROUND FOR WEBKIT BUG: WebKit resets all styles if we add @import'ed
       // stylesheet that hasn't been cached yet. Workaround is to pre-cache the
       // stylesheet by temporarily adding it as a LINK tag.
-      var tempLink = this.document.createElement('link');
-      tempLink.rel = 'stylesheet';
+      var tempLink = this.document.createElement("link");
+      tempLink.rel = "stylesheet";
       tempLink.href = href;
       tempLink.__LiveReload_pendingRemoval = true; // exclude from path matching
 
@@ -3678,6 +3686,7 @@ var Reloader = /*#__PURE__*/function () {
       if (!expando) {
         expando = this.generateUniqueString();
       }
+      ;
       var _splitUrl2 = splitUrl(url);
       url = _splitUrl2.url;
       hash = _splitUrl2.hash;
@@ -3685,7 +3694,7 @@ var Reloader = /*#__PURE__*/function () {
       if (options.overrideURL) {
         if (url.indexOf(options.serverURL) < 0) {
           var originalUrl = url;
-          url = options.serverURL + options.overrideURL + '?url=' + encodeURIComponent(url);
+          url = options.serverURL + options.overrideURL + "?url=" + encodeURIComponent(url);
           this.console.log("LiveReload is overriding source URL ".concat(originalUrl, " with ").concat(url));
         }
       }
@@ -3704,7 +3713,6 @@ var Reloader = /*#__PURE__*/function () {
   }]);
   return Reloader;
 }();
-;
 exports.splitUrl = splitUrl;
 exports.pathFromUrl = pathFromUrl;
 exports.numberOfMatchingSegments = numberOfMatchingSegments;
@@ -3712,7 +3720,7 @@ exports.pickBestMatch = pickBestMatch;
 exports.pathsMatch = pathsMatch;
 exports.Reloader = Reloader;
 
-},{"core-js/modules/es6.array.filter.js":83,"core-js/modules/es6.array.from.js":84,"core-js/modules/es6.array.iterator.js":85,"core-js/modules/es6.array.map.js":86,"core-js/modules/es6.array.slice.js":87,"core-js/modules/es6.number.constructor.js":88,"core-js/modules/es6.object.get-own-property-descriptor.js":89,"core-js/modules/es6.object.keys.js":90,"core-js/modules/es6.object.to-string.js":91,"core-js/modules/es6.regexp.constructor.js":92,"core-js/modules/es6.regexp.match.js":94,"core-js/modules/es6.regexp.replace.js":95,"core-js/modules/es6.regexp.split.js":96,"core-js/modules/es6.string.iterator.js":98,"core-js/modules/es6.symbol.js":99,"core-js/modules/es7.object.get-own-property-descriptors.js":101,"core-js/modules/web.dom.iterable.js":102}],110:[function(require,module,exports){
+},{"core-js/modules/es6.array.filter.js":83,"core-js/modules/es6.array.from.js":84,"core-js/modules/es6.array.iterator.js":85,"core-js/modules/es6.array.map.js":86,"core-js/modules/es6.array.slice.js":87,"core-js/modules/es6.number.constructor.js":88,"core-js/modules/es6.object.get-own-property-descriptor.js":89,"core-js/modules/es6.object.keys.js":90,"core-js/modules/es6.object.to-string.js":91,"core-js/modules/es6.regexp.constructor.js":92,"core-js/modules/es6.regexp.match.js":94,"core-js/modules/es6.regexp.replace.js":95,"core-js/modules/es6.regexp.split.js":96,"core-js/modules/es6.string.includes.js":97,"core-js/modules/es6.string.iterator.js":98,"core-js/modules/es6.symbol.js":99,"core-js/modules/es7.array.includes.js":100,"core-js/modules/es7.object.get-own-property-descriptors.js":101,"core-js/modules/web.dom.iterable.js":102}],110:[function(require,module,exports){
 "use strict";
 
 require("core-js/modules/es6.regexp.match.js");
